@@ -54,11 +54,11 @@ class TestUserRegister(BaseCase):
         response = MyRequests.post("/user/", data=data)
         Assertions.assert_code_status(response, 400)
         assert response.content.decode(
-            "utf-8") == f"The value of 'firstName' field is too short", f"Unexpected response content {response.content}"
+            "utf-8") == "The value of 'firstName' field is too short", f"Unexpected response content {response.content}"
 
     def test_create_user_with_too_long_firstname(self):
         data = self.prepare_registration_data()
         data["firstName"] = self.generate_random_string(251)
         response = MyRequests.post("/user/", data=data)
         assert response.content.decode(
-            "utf-8") == f"The value of 'firstName' field is too long", f"Unexpected response content {response.content}"
+            "utf-8") == "The value of 'firstName' field is too long", f"Unexpected response content {response.content}"
