@@ -1,4 +1,3 @@
-import time
 from lib.my_requests import MyRequests
 from lib.base_case import BaseCase
 from lib.assertions import Assertions
@@ -78,7 +77,6 @@ class TestUserEdit(BaseCase):
 
     def test_edit_created_user_by_another_user(self):
         user1 = self._register_user()
-        time.sleep(3)
         user2 = self._register_user()
         auth_sid2, token2 = self._login_user(user2['email'], user2['password'])
 
