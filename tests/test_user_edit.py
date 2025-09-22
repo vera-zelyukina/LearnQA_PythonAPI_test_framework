@@ -1,7 +1,10 @@
 from lib.my_requests import MyRequests
 from lib.base_case import BaseCase
 from lib.assertions import Assertions
+import allure
 
+@allure.epic("User")
+@allure.feature("Edit user cases")
 class TestUserEdit(BaseCase):
     def _register_user(self):
         register_data = self.prepare_registration_data()
@@ -27,14 +30,14 @@ class TestUserEdit(BaseCase):
         token = self.get_header(response2, "x-csrf-token")
         return auth_sid, token
 
-
+    @allure.severity(allure.severity_level.CRITICAL)
+    @allure.description("This test successfully edit user")
     def test_edit_just_created_user(self):
         #REGISTER
         user = self._register_user()
 
         #LOGIN
         auth_sid, token = self._login_user(user['email'], user['password'])
-
 
         #EDIT
         new_name = "Changed Name"
@@ -45,7 +48,6 @@ class TestUserEdit(BaseCase):
             cookies={"auth_sid": auth_sid},
             data={"firstName": new_name}
         )
-
         Assertions.assert_code_status(response3, 200)
 
         #GET
@@ -62,6 +64,8 @@ class TestUserEdit(BaseCase):
             "Wrong name of the user after edit"
         )
 
+    @allure.severity(allure.severity_level.CRITICAL)
+    @allure.description("This test checks edit user by unauthorized user")
     def test_edit_created_user_by_user_not_authorize(self):
         user = self._register_user()
 
@@ -75,6 +79,8 @@ class TestUserEdit(BaseCase):
         Assertions.assert_code_status(response3, 400)
         assert response3.json()['error'] == "Auth token not supplied", f"Unexpected response content {response3.content}"
 
+    @allure.severity(allure.severity_level.CRITICAL)
+    @allure.description("This test checks edit user by another user")
     def test_edit_created_user_by_another_user(self):
         user1 = self._register_user()
         user2 = self._register_user()
@@ -92,13 +98,13 @@ class TestUserEdit(BaseCase):
         Assertions.assert_code_status(response3, 400)
         assert response3.json().get('error'), f"Unexpected response content {response3.content}"
 
+    @allure.description("This test checks change the user's email to an incorrect one")
     def test_edit_for_incorrect_email(self):
         #REGISTER
         user = self._register_user()
 
         #LOGIN
         auth_sid, token = self._login_user(user['email'], user['password'])
-
 
         #EDIT
         email = user['email']
@@ -114,13 +120,13 @@ class TestUserEdit(BaseCase):
         Assertions.assert_code_status(response3, 400)
         assert response3.json()['error'] == "Invalid email format", f"Unexpected response content {response3.content}"
 
+    @allure.description("This test checks change the user's first name to too short one")
     def test_edit_too_short_firstname(self):
         #REGISTER
         user = self._register_user()
 
         #LOGIN
         auth_sid, token = self._login_user(user['email'], user['password'])
-
 
         #EDIT
         new_name = self.generate_random_string(1)
@@ -134,4 +140,3 @@ class TestUserEdit(BaseCase):
 
         Assertions.assert_code_status(response3, 400)
         assert response3.json()['error'] == "The value for field `firstName` is too short", f"Unexpected response content {response3.content}"
-
